@@ -1,57 +1,41 @@
 import os
-from openai import AzureOpenAI
 import chainlit as cl
-
-# from langchain_core.messages import HumanMessage
-# from langchain_core.runnables.history import RunnableWithMessageHistory
-
-client = AzureOpenAI(
-    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-    api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
+from langchain_openai.chat_models import AzureChatOpenAI
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
 )
 
+chat = AzureChatOpenAI(
+    azure_deployment="gpt-4o",
+    api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+    # other params...
+)
 
-# from langchain_community.chat_message_histories import SQLChatMessageHistory
-
-# def get_session_history(session_id):
-#     return SQLChatMessageHistory(session_id, "sqlite:///memory.db")
-
-
-# runnable_with_history = RunnableWithMessageHistory(
-#     client,
-#     get_session_history,
-# )
-
-# runnable_with_history.invoke(
-#     [HumanMessage(content="hi - im bob!")],
-#     config={"configurable": {"session_id": "1"}},
-# )
+memory = ConversationBufferWindowMemory(k=8, return_messages=True)
 
 def generate_response(user_message):
-    response = client.chat.completions.create(
-       model="gpt-4o",
-       messages=[
-          {"role": "system", "content": "あなたは、ウミガメのスープのゲームマスターです。"},
-          {"role": "user", "content": user_message}
-       ]
-    )
-    return response.choices[0].message.content
-
-# @cl.on_message
-# async def main(message: cl.Message):
-#     # Your custom logic goes here...
-
-#     # Send a response back to the user
-#     await cl.Message(
-#         content=f"Received: {message.content}",
-#     ).send()
+    template = "あなたは、ウミガメのスープのゲームマスターです。"
+    prompt = ChatPromptTemplate.from_messages([
+        SystemMessagePromptTemplate.from_template(template),
+        MessagesPlaceholder(variable_name="history"),
+        HumanMessagePromptTemplate.from_template("{input}"),
+    ])
+    conversation = ConversationChain(llm=chat, memory=memory, prompt=prompt)
+    return conversation.predict(input=user_message)
 
 @cl.on_chat_start  
 async def on_chat_start():
     await cl.Message(content="ウミガメのスープを始めます！メッセージを入力してください！").send()
 
-# メッセージが送信されたときに実行される関数
 @cl.on_message  
 async def on_message(input_message):
     user_message = input_message.content
