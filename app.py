@@ -11,7 +11,7 @@ from langchain.prompts.chat import (
 )
 
 chat = AzureChatOpenAI(
-    azure_deployment="gpt-4o",
+    azure_deployment=os.getenv("AZURE_OPENAI_MODEL_ID"),
     api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
     temperature=0,
     max_tokens=None,
@@ -23,7 +23,7 @@ chat = AzureChatOpenAI(
 memory = ConversationBufferWindowMemory(k=8, return_messages=True)
 
 def generate_response(user_message):
-    template = "あなたは、ウミガメのスープのゲームマスターです。"
+    template = "あなたは、ウミガメのスープのゲームマスターです。ユーザーの質問が「解答」と一致した場合、正解であることを伝えてクイズを終了してください。"
     prompt = ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(template),
         MessagesPlaceholder(variable_name="history"),

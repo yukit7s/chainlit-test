@@ -2,7 +2,7 @@
 
 ## 利用方法
 * 環境
-  * Python 3.7以上
+  * Python 3.8以上
   * pip
   * venv
 
@@ -14,15 +14,18 @@ cd chainlit-test
 vim .env
 # AZURE_OPENAI_ENDPOINT = "{YOUR-ENDPOINT}"
 # AZURE_OPENAI_API_KEY = "{YOUR-API-KEY}"
+# AZURE_OPENAI_MODEL_ID = "gpt-4o"
 # AZURE_OPENAI_API_VERSION = "2024-07-01-preview"
 
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
+# Chainlit のテスト起動
 chainlit hello
 # Ctrl + C で終了
 
+# アプリの実行
 chainlit run app.py -w
 # Ctrl + C で終了
 
