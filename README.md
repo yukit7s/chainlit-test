@@ -6,6 +6,8 @@
   * pip
   * venv
 
+* 事前に Azure OpenAI などで LLM のモデルを作成し、エンドポイント、APIキー、モデルIDを取得してください。
+
 ```sh
 git clone https://github.com/yukit7s/chainlit-test.git
 cd chainlit-test
