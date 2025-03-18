@@ -1,5 +1,5 @@
 chainlit
-# openai
 langchain
 langchain-openai
 langchain_community
+pydantic==2.10.1
